@@ -5,17 +5,13 @@ require 'yaml'
 require 'json'
 require 'digest/sha1'
 require 'open-uri'
+RUBYISTOKEI_DATA = 'http://rubyistokei.herokuapp.com/data.json'
 
 class Database
   def initialize(path)
-    data_loaded = Dir[File.join(path, '*.yaml')].map do |yaml_path|
-      hash = YAML.load_file(yaml_path)
-      id = File.basename(yaml_path, '.yaml')
-      hash['url'] = "/glitch?url=#{hash['url']}"
-      hash.merge(id: id)
-    end
-    @data = data_loaded.sort_by do |entry|
-      Digest::SHA1.digest(entry[:id])
+    @data = JSON.parse(open(RUBYISTOKEI_DATA).read)
+    @data.each do |entry|
+      entry['url'] = "/glitch?url=#{entry['url']}"
     end
   end
 
